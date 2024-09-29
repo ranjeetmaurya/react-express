@@ -3,14 +3,17 @@ import Input from "./Input"
 import Modal from "./Modal";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { setProjectsState } from '../actions/actions';
 import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo } from 'ckeditor5';
-export default function NewProject({onAdd, onCancel}){
 
+ function NewProject({projectsState, setProjectsState}){
     const modal = useRef();
     const title = useRef();
     const description = useRef();
     const dueDate = useRef();
     let ckValue = "";
+    
     function handleSave(){
       const enteredTitle = title.current.value;
       console.log(ckValue);
@@ -22,14 +25,28 @@ export default function NewProject({onAdd, onCancel}){
         modal.current.open();
         return;
       }
-      onAdd({
+
+      const newProject = {
         title: enteredTitle,
         description: enteredDescription,
         dueDate: enteredDueDate,
-      })
+        id: Math.random()
+      };
 
+      setProjectsState( {
+        ...projectsState,
+        projects: [...projectsState.projects, newProject]
+      } ) 
     }
 
+    function onCancel(){
+      setProjectsState( {
+        ...projectsState,
+        selectedProjectId: undefined
+      }
+    )   
+    }
+      
     return (
         <>
           <Modal ref={modal}>
@@ -74,7 +91,18 @@ export default function NewProject({onAdd, onCancel}){
     )
     }
 
+const mapStateToProps = state => ({
+  projectsState: state.projectsState
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  setProjectsState: (state) => dispatch(setProjectsState(state))
+});
+    
 NewProject.propTypes = {
   onAdd: PropTypes.func,
   onCancel: PropTypes.func,
 };
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewProject);

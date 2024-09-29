@@ -1,43 +1,25 @@
 import { useState } from "react"; 
+import {
+  BrowserRouter
+} from 'react-router-dom';
 import NewProject from "./components/NewProject";
 import NoProjectSelected from "./components/NoProjectSelected";
 import ProjectsSidebar from "./components/ProjectsSidebar";
 import SelectedProject from "./components/SelectedProject";
 import { AppContext } from "./components/AppContext";
+import { connect } from 'react-redux';
+import { setProjectsState } from './actions/actions';
+import LoginForm from './components/LoginForm';
+import PrivateRoute from "./routes/PrivateRoutes";
+import PublicRoute from "./routes/PublicRoutes";
 
-function App() {
-  const [projectsState, setProjectsState] = useState({
-    selectedProjectId: undefined,
-    projects: [],
-    tasks: []
-  });
-
+function App({ projectsState, setProjectsState } = props) {
+  
   function handleStartAddProject(){
-    setProjectsState(prevState=>{
-      return {
-        ...prevState,
-        selectedProjectId: null
-      }
-    })
-  }
-
-  function handleOnAdd(projectData){
-    const newProject = {...projectData, id: Math.random()};
-    setProjectsState(prevState => {
-      return {
-        ...prevState,
-        projects: [...prevState.projects, newProject]
-      };
+    setProjectsState({
+      ...projectsState,
+      selectedProjectId: null
     });
-  }
-
-  function handleCancelAddProject(){
-    setProjectsState(prevState=>{
-      return {
-        ...prevState,
-        selectedProjectId: undefined
-      }
-    })    
   }
 
   function handleSelectedProject(id){
@@ -84,21 +66,33 @@ function App() {
 
   let content = <SelectedProject project={ projectsState.projects[0]} onDelete={handleDeleteProject} addTask={handleAddTask} tasks={ projectsState.tasks } clearTask={deleteTask}/>;
   if (projectsState.selectedProjectId===null){
-    content = <NewProject onAdd={handleOnAdd} onCancel={handleCancelAddProject}/>
+    content = <NewProject />
   }
   else if (projectsState.selectedProjectId===undefined){
     content = <NoProjectSelected onStartAddProject={handleStartAddProject}/>
   }
 
-
   return (
-    <main className="h-screen my-8 flex gap-8">
       <AppContext.Provider value={ { projectsState, setProjectsState } } >
-        <ProjectsSidebar onStartAddProject={handleStartAddProject} projects={projectsState.projects} onSelectProject={handleSelectedProject}/>
-        {content}
+        <BrowserRouter>
+          <PublicRoute />
+          <main className="h-screen my-8 flex gap-8">
+            <PrivateRoute>
+              <ProjectsSidebar onStartAddProject={handleStartAddProject} projects={projectsState.projects} onSelectProject={handleSelectedProject}/> 
+              {content}
+            </PrivateRoute>
+          </main>        
+        </BrowserRouter>  
       </AppContext.Provider>
-    </main>
   );
 }
 
-export default App;
+const mapStateToProps = state => ({
+  projectsState: state.projectsState
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  setProjectsState: (state) => dispatch(setProjectsState(state))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
