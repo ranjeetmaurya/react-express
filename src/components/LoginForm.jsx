@@ -1,31 +1,34 @@
 // LoginForm.js
 
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
   //const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://127.0.0.1:3000/users/authenticate', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:3000/users/authenticate", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          "email": email,
-          "password": password
-        })
-      }).then(response => response.json());
+          email: email,
+          password: password,
+        }),
+      }).then((response) => response.json());
       console.log(response.accessToken);
       //dispatch(login(response.data.user)); // Assuming response contains user info
-      localStorage.setItem('token', response.accessToken); // Store token if using JWT
+      localStorage.setItem("token", response.accessToken); // Store token if using JWT
+      navigate("/");
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
     }
   };
 
@@ -55,8 +58,13 @@ const LoginForm = () => {
             />
           </div>
           <div className="flex items-center justify-between">
-            <button type="submit" className="w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700">Login</button>
-          </div>  
+            <button
+              type="submit"
+              className="w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700"
+            >
+              Login
+            </button>
+          </div>
         </form>
       </div>
     </div>

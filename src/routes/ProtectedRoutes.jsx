@@ -3,18 +3,15 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginForm from "../components/LoginForm";
 import BootstrapUi from "../components/BootstrapUi";
 
-const PublicRoute = () => {
+const ProtectedRoute = () => {
   let routes;
-  if (false) {
-    routes = null;
-  } else {
-    routes = (
-      <Routes>
-        <Route path="/login" element={<LoginForm />} />
-      </Routes>
-    );
-  }
+
+  routes = (
+    <Routes>
+      <Route path="/" element={<BootstrapUi />} />
+    </Routes>
+  );
   return <>{routes}</>;
 };
 
-export default PublicRoute;
+export default ProtectedRoute;
